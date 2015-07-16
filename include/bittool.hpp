@@ -7,6 +7,10 @@ class BitTool
 {
 private:
 
+    void initCurses();
+
+    void mainLoop();
+
 public:
     BitTool();
     ~BitTool();
