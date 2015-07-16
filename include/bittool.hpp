@@ -10,6 +10,7 @@ private:
     void initCurses();
 
     void mainLoop();
+    void bitfield();
 
 public:
     BitTool();
