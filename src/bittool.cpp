@@ -69,10 +69,10 @@ void BitTool::bitfield()
         else if(ch == 259) selection--;
         //toggle bits high/low with left/right arrow keys
         else if(ch == 260 || ch == 261) bits[selection] = !bits[selection];
-        //clear bit field
+        //clear bit field 'c'
         else if(ch == 99)
         {
-            for(int i = 0; i < int(bits.size()); i++) bits[i] = false;
+            clearBitField(&bits);
         }
         //set decimal value 'd'
         else if(ch == 100)
@@ -86,6 +86,7 @@ void BitTool::bitfield()
                 mvprintw(14,30, "Value is too large!");
                 getch();
             }
+            else setBitFieldFromDec(&bits, newval);
         }
         //set hex value 'h'
         else if(ch == 104)
@@ -160,9 +161,30 @@ void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
     //if value is larger than container
     if(val > pow(2, bits->size()) ) return;
 
+    //calculate binary value
+    while(tval != 0)
+    {
+        if(tval%2) templist.push_back(true);
+        else templist.push_back(false);
+
+        tval = tval/2;
+    }
+
+    //clear bits list
+    clearBitField(bits);
+
+    for(int i = 0; i < int(templist.size()); i++)
+    {
+        (*bits)[i] = templist[i];
+    }
 }
 
 void BitTool::setBitFieldFromHex(std::vector<bool> *bits, int val)
 {
     if(bits == NULL) return;
+}
+
+void BitTool::clearBitField(std::vector<bool> *bits)
+{
+    for(int i = 0; i < int(bits->size()); i++) (*bits)[i] = false;
 }

@@ -20,6 +20,7 @@ private:
     //bitfield operations
     void setBitFieldFromDec(std::vector<bool> *bits, int val);
     void setBitFieldFromHex(std::vector<bool> *bits, int val);
+    void clearBitField(std::vector<bool> *bits);
 
 public:
     BitTool();
