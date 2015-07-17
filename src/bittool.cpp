@@ -43,25 +43,41 @@ void BitTool::bitfield()
         {
             if(bits[i]) boolval += pow(2, i);
         }
-        printw("Dec value:%d\n", boolval);
-        printw("Hex value:%x\n\n", boolval);
+        mvprintw(0,0,"[d]ec value:%d\n", boolval);
+        mvprintw(1,0,"[h]ex value:%x\n\n", boolval);
 
         for(int i = 0; i < int(bits.size()); i++)
         {
             if(selection == i) attron(A_REVERSE);
 
-            printw("BIT %02d : %d\n", i, int(bits[i]));
+            mvprintw(3+i, 0, "BIT %02d : %d\n", i, int(bits[i]));
 
             attroff(A_REVERSE);
         }
-        printw("test : %d\n", ch);
+        mvprintw(20,0, "[c]lear bitfield");
+        mvprintw(24,0,"test : %d\n", ch);
 
         ch = getch();
 
         if(ch == 27) quit = true;
         else if(ch == 258) selection++;
         else if(ch == 259) selection--;
+        //toggle bits high/low with left/right arrow keys
         else if(ch == 260 || ch == 261) bits[selection] = !bits[selection];
+        //clear bit field
+        else if(ch == 99)
+        {
+            for(int i = 0; i < int(bits.size()); i++) bits[i] = false;
+        }
+        //set decimal value
+        else if(ch == 100)
+        {
+            int newval = 0;
+            mvprintw(12,30,"Enter decimal value:");
+            scanw("%d", &newval);
+
+
+        }
 
 
         //trim selection value
@@ -104,4 +120,11 @@ void BitTool::mainLoop()
     getch();
 
     scrollok(stdscr, false);
+}
+
+void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
+{
+    if(bits == NULL) return;
+
+
 }

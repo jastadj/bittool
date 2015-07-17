@@ -12,6 +12,9 @@ private:
     void mainLoop();
     void bitfield();
 
+    //bitfield operations
+    void setBitFieldFromDec(std::vector<bool> *bits, int val);
+
 public:
     BitTool();
     ~BitTool();
