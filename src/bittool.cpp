@@ -1,5 +1,6 @@
 #include "bittool.hpp"
 #include "math.h"
+#include "stdint.h"
 
 
 BitTool::BitTool()
@@ -46,7 +47,9 @@ void BitTool::bitfield()
         {
             if(bits[i]) boolval += pow(2, i);
         }
-        mvprintw(0,0,"[d]ec value:%d\n", boolval);
+        mvprintw(0,0,"[d]ec value:");
+        if(isSigned) printw("%d\n", int16_t(boolval) );
+        else printw("%d\n", boolval);
         mvprintw(1,0,"[h]ex value:%x\n\n", boolval);
 
         for(int i = 0; i < int(bits.size()); i++)
@@ -58,6 +61,9 @@ void BitTool::bitfield()
             attroff(A_REVERSE);
         }
         mvprintw(20,0, "[c]lear bitfield");
+        mvprintw(20,25, "[s]igned:");
+        if(isSigned) printw("y");
+        else printw("n");
         mvprintw(21,0, "[a]ll bits high");
         mvprintw(22,0, "[i]nvert bits");
         mvprintw(24,0,"test : %d\n", ch);
@@ -113,6 +119,11 @@ void BitTool::bitfield()
         else if(ch == 97)
         {
             for(int i = 0; i < int(bits.size()); i++) bits[i] = true;
+        }
+        //toggle signed/unsigned 's'
+        else if(ch == 115)
+        {
+            isSigned = !isSigned;
         }
 
 
