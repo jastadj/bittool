@@ -2,6 +2,7 @@
 #define CLASS_BITTOOL
 
 #include "curses.h"
+#include <vector>
 
 class BitTool
 {
@@ -12,8 +13,13 @@ private:
     void mainLoop();
     void bitfield();
 
+    //bit variables
+    bool isSigned;
+
+
     //bitfield operations
     void setBitFieldFromDec(std::vector<bool> *bits, int val);
+    void setBitFieldFromHex(std::vector<bool> *bits, int val);
 
 public:
     BitTool();

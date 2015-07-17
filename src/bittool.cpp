@@ -1,11 +1,14 @@
 #include "bittool.hpp"
 #include "math.h"
-#include <vector>
+
 
 BitTool::BitTool()
 {
 
     initCurses();
+
+    //init variables
+    isSigned = false;
 
     //mainLoop();
     bitfield();
@@ -55,6 +58,8 @@ void BitTool::bitfield()
             attroff(A_REVERSE);
         }
         mvprintw(20,0, "[c]lear bitfield");
+        mvprintw(21,0, "[a]ll bits high");
+        mvprintw(22,0, "[i]nvert bits");
         mvprintw(24,0,"test : %d\n", ch);
 
         ch = getch();
@@ -69,14 +74,36 @@ void BitTool::bitfield()
         {
             for(int i = 0; i < int(bits.size()); i++) bits[i] = false;
         }
-        //set decimal value
+        //set decimal value 'd'
         else if(ch == 100)
         {
             int newval = 0;
             mvprintw(12,30,"Enter decimal value:");
             scanw("%d", &newval);
 
+            if(newval > pow(2, bits.size()) )
+            {
+                mvprintw(14,30, "Value is too large!");
+                getch();
+            }
+        }
+        //set hex value 'h'
+        else if(ch == 104)
+        {
+            int newval = 0;
+            mvprintw(12,30,"Enter hex value:");
+            scanw("%h", &newval);
+        }
+        //invert bits 'i'
+        else if(ch == 105)
+        {
+            for(int i = 0; i < int(bits.size()); i++) bits[i] = !bits[i];
 
+        }
+        //all bits set high 'a'
+        else if(ch == 97)
+        {
+            for(int i = 0; i < int(bits.size()); i++) bits[i] = true;
         }
 
 
@@ -124,7 +151,18 @@ void BitTool::mainLoop()
 
 void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
 {
+    std::vector<bool> templist;
+    int tval = val;
+
+    //if bit field list is null
     if(bits == NULL) return;
 
+    //if value is larger than container
+    if(val > pow(2, bits->size()) ) return;
 
+}
+
+void BitTool::setBitFieldFromHex(std::vector<bool> *bits, int val)
+{
+    if(bits == NULL) return;
 }
