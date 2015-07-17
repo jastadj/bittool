@@ -50,7 +50,7 @@ void BitTool::bitfield()
         mvprintw(0,0,"[d]ec value:");
         if(isSigned) printw("%d\n", int16_t(boolval) );
         else printw("%d\n", boolval);
-        mvprintw(1,0,"[h]ex value:%x\n\n", boolval);
+        mvprintw(1,0,"[h]ex value:0x%04x\n\n", boolval);
 
         for(int i = 0; i < int(bits.size()); i++)
         {
@@ -74,7 +74,7 @@ void BitTool::bitfield()
         else if(ch == 258) selection++;
         else if(ch == 259) selection--;
         //toggle bits high/low with left/right arrow keys
-        else if(ch == 260 || ch == 261) bits[selection] = !bits[selection];
+        else if(ch == 260 || ch == 261 || ch == 10) bits[selection] = !bits[selection];
         //clear bit field 'c'
         else if(ch == 99)
         {
