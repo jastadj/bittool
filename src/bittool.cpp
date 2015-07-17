@@ -93,7 +93,15 @@ void BitTool::bitfield()
         {
             int newval = 0;
             mvprintw(12,30,"Enter hex value:");
-            scanw("%h", &newval);
+            scanw("%x", &newval);
+
+            if(newval > pow(2, bits.size()) )
+            {
+                mvprintw(14,30, "Value is too large!");
+                getch();
+            }
+            else setBitFieldFromDec(&bits, newval);
+
         }
         //invert bits 'i'
         else if(ch == 105)
