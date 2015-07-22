@@ -24,6 +24,10 @@ void BitTool::initCurses()
 {
     initscr();
     keypad(stdscr, true);
+    start_color();
+
+    //init colors
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
 
 }
 
@@ -66,6 +70,19 @@ void BitTool::bitfield()
         else printw("n");
         mvprintw(21,0, "[a]ll bits high");
         mvprintw(22,0, "[i]nvert bits");
+
+        //highlight ui components green
+        attron(COLOR_PAIR(1) | A_BOLD);
+        mvprintw(0,1,"d");
+        mvprintw(1,1,"h");
+        mvprintw(20,1, "c");
+        mvprintw(20,26,"s");
+        mvprintw(21,1,"a");
+        mvprintw(22,1,"i");
+        attroff(COLOR_PAIR(1) | A_BOLD);
+
+
+        //debug
         mvprintw(24,0,"test : %d\n", ch);
 
         ch = getch();
