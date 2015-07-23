@@ -41,6 +41,9 @@ void BitTool::bitfield()
 
     for(int i = 0; i < 16; i++) bits.push_back(false);
 
+    //init word size
+    int wordsize = WS_2BYTE;
+
     while(!quit)
     {
         clear();
@@ -52,9 +55,50 @@ void BitTool::bitfield()
             if(bits[i]) boolval += pow(2, i);
         }
         mvprintw(0,0,"[d]ec value:");
-        if(isSigned) printw("%d\n", int16_t(boolval) );
+        if(isSigned)
+        {
+            int tempval = boolval;
+
+            if(bits.back())
+            {
+                //clear temp val for signed calc
+                tempval = 0;
+
+                //copy and invert all bits
+                std::vector<bool> tempbits;
+
+                for(int i = 0; i < int(bits.size()-1); i++)
+                {
+                    //copy inverted bit to temp list
+                    tempbits.push_back(!bits[i]);
+
+                    //if bit is high, add to value
+                    if(tempbits.back()) tempval += pow(2,i);
+                }
+
+                //add one to temp value then invert sign
+                tempval = (tempval + 1) * (-1);
+            }
+
+            printw("%d", tempval);
+        }
         else printw("%d\n", boolval);
-        mvprintw(1,0,"[h]ex value:0x%04x\n\n", boolval);
+
+        //change hex formatting based on word size
+        switch(wordsize)
+        {
+        case WS_NIBBLE:
+            mvprintw(1,0,"[h]ex value:0x%x\n\n", boolval);
+            break;
+        case WS_1BYTE:
+            mvprintw(1,0,"[h]ex value:0x%02x\n\n", boolval);
+            break;
+        case WS_2BYTE:
+            mvprintw(1,0,"[h]ex value:0x%04x\n\n", boolval);
+            break;
+        default:
+            break;
+        }
 
         for(int i = 0; i < int(bits.size()); i++)
         {
@@ -69,6 +113,9 @@ void BitTool::bitfield()
         if(isSigned) printw("y");
         else printw("n");
         mvprintw(21,0, "[a]ll bits high");
+
+        mvprintw(21,25,"[w]ord size:%d", int(bits.size()));
+
         mvprintw(22,0, "[i]nvert bits");
 
         //highlight ui components green
@@ -79,6 +126,7 @@ void BitTool::bitfield()
         mvprintw(20,26,"s");
         mvprintw(21,1,"a");
         mvprintw(22,1,"i");
+        mvprintw(21,26,"w");
         attroff(COLOR_PAIR(1) | A_BOLD);
 
 
@@ -141,6 +189,26 @@ void BitTool::bitfield()
         else if(ch == 115)
         {
             isSigned = !isSigned;
+        }
+        else if(ch == 119)
+        {
+            wordsize++;
+            if(wordsize == WS_TOTAL) wordsize = WS_NIBBLE;
+
+            switch(wordsize)
+            {
+            case WS_NIBBLE:
+                bits.resize(4);
+                break;
+            case WS_1BYTE:
+                bits.resize(8);
+                break;
+            case WS_2BYTE:
+                bits.resize(16);
+                break;
+            default:
+                break;
+            }
         }
 
 

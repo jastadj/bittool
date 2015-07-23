@@ -4,6 +4,8 @@
 #include "curses.h"
 #include <vector>
 
+enum eWORDSIZE {WS_NIBBLE, WS_1BYTE, WS_2BYTE, WS_TOTAL};
+
 class BitTool
 {
 private:
