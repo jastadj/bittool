@@ -6,6 +6,8 @@
 
 enum eWORDSIZE {WS_NIBBLE, WS_1BYTE, WS_2BYTE, WS_TOTAL};
 
+enum ePROTOCOL {P_NONE, P_STA, P_TOTAL};
+
 class BitTool
 {
 private:
@@ -18,6 +20,8 @@ private:
     //bit variables
     bool isSigned;
 
+    //options
+    int protocolMode;
 
     //bitfield operations
     void setBitFieldFromDec(std::vector<bool> *bits, int val);

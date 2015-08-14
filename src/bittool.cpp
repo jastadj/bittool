@@ -10,6 +10,7 @@ BitTool::BitTool()
 
     //init variables
     isSigned = false;
+    protocolMode = P_STA;
 
     //mainLoop();
     bitfield();
@@ -112,8 +113,21 @@ void BitTool::bitfield()
         mvprintw(20,25, "[s]igned:");
         if(isSigned) printw("y");
         else printw("n");
-        mvprintw(21,0, "[a]ll bits high");
+        mvprintw(20, 50, "[p]rotocol mode:");
+        switch(protocolMode)
+        {
+        case P_NONE:
+            printw("None");
+            break;
+        case P_STA:
+            printw("Serial Type A");
+            break;
+        default:
+            printw("Error");
+            break;
+        }
 
+        mvprintw(21,0, "[a]ll bits high");
         mvprintw(21,25,"[w]ord size:%d", int(bits.size()));
 
         mvprintw(22,0, "[i]nvert bits");
@@ -124,6 +138,7 @@ void BitTool::bitfield()
         mvprintw(1,1,"h");
         mvprintw(20,1, "c");
         mvprintw(20,26,"s");
+        mvprintw(20,51,"p");
         mvprintw(21,1,"a");
         mvprintw(22,1,"i");
         mvprintw(21,26,"w");
@@ -209,6 +224,12 @@ void BitTool::bitfield()
             default:
                 break;
             }
+        }
+        // 'p' is pressed, cycle protocol modes
+        else if(ch == 112)
+        {
+            protocolMode++;
+            if(protocolMode >= P_TOTAL) protocolMode = 0;
         }
 
 
