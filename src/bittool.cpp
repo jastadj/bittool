@@ -54,16 +54,20 @@ void BitTool::bitfield()
         mvprintw(0,0,"[d]ec value:%d", boolval );
 
         //change hex formatting based on word size
+        mvprintw(1,0,"[h]ex value:0x");
         switch(wordsize)
         {
         case WS_NIBBLE:
-            mvprintw(1,0,"[h]ex value:0x%x\n\n", boolval);
+            printw("%x\n\n", boolval);
             break;
         case WS_1BYTE:
-            mvprintw(1,0,"[h]ex value:0x%02x\n\n", boolval);
+            printw("%02x\n\n", boolval);
             break;
         case WS_2BYTE:
-            mvprintw(1,0,"[h]ex value:0x%04x\n\n", boolval);
+            printw("%04x\n\n", boolval);
+            break;
+        case WS_4BYTE:
+            printw("%08x\n\n", boolval);
             break;
         default:
             break;
@@ -73,7 +77,7 @@ void BitTool::bitfield()
         {
             if(selection == i) attron(A_REVERSE);
 
-            mvprintw(3+i, 0, "BIT %02d : %d\n", i, int(bits[i]));
+            mvprintw(3 + i - floor((i/16))*16, 12*floor((i/16)) , "BIT %02d : %d\n", i, int(bits[i]));
 
             attroff(A_REVERSE);
         }
@@ -124,8 +128,22 @@ void BitTool::bitfield()
         if(ch == 27) quit = true;
         else if(ch == 258) selection++;
         else if(ch == 259) selection--;
-        //toggle bits high/low with left/right arrow keys
-        else if(ch == 260 || ch == 261 || ch == 10) bits[selection] = !bits[selection];
+        //if possible, shift to adjacent bit
+        //shift to the left
+        else if(ch == 260)
+        {
+            selection -= 16;
+        }
+        //shift to the right
+        else if(ch == 261)
+        {
+            selection += 16;
+        }
+        //toggle bit with space bar or enter key
+        else if(ch == 32 || ch == 10)
+        {
+            bits[selection] = !bits[selection];
+        }
         //clear bit field 'c'
         else if(ch == 99)
         {
@@ -192,6 +210,8 @@ void BitTool::bitfield()
             case WS_2BYTE:
                 bits.resize(16);
                 break;
+            case WS_4BYTE:
+                bits.resize(32);
             default:
                 break;
             }
@@ -205,8 +225,14 @@ void BitTool::bitfield()
 
 
         //trim selection value
-        if(selection >= int(bits.size())) selection = 0;
-        else if(selection < 0) selection = int(bits.size()-1);
+        if(selection >= int(bits.size()))
+        {
+            selection -= 16;
+        }
+        else if(selection < 0)
+        {
+            selection += 16;
+        }
 
     }
 
