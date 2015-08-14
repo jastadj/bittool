@@ -18,6 +18,7 @@ private:
     void bitfield();
 
     //bit variables
+    std::vector<bool> bits;
     bool isSigned;
 
     //options
@@ -27,6 +28,12 @@ private:
     void setBitFieldFromDec(std::vector<bool> *bits, int val);
     void setBitFieldFromHex(std::vector<bool> *bits, int val);
     void clearBitField(std::vector<bool> *bits);
+
+    //bit conversion
+    int getDecFromBitfield(std::vector<bool> *bits);
+
+    //protocol info
+    void drawProtocolInfo();
 
 public:
     BitTool();

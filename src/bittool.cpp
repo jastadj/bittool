@@ -35,7 +35,6 @@ void BitTool::initCurses()
 void BitTool::bitfield()
 {
     bool quit = false;
-    std::vector<bool> bits;
 
     int ch = 0;
     int selection = 0;
@@ -50,40 +49,9 @@ void BitTool::bitfield()
         clear();
 
         //calculate value of bools
-        int boolval = 0;
-        for(int i = 0; i < int(bits.size()); i++)
-        {
-            if(bits[i]) boolval += pow(2, i);
-        }
-        mvprintw(0,0,"[d]ec value:");
-        if(isSigned)
-        {
-            int tempval = boolval;
 
-            if(bits.back())
-            {
-                //clear temp val for signed calc
-                tempval = 0;
-
-                //copy and invert all bits
-                std::vector<bool> tempbits;
-
-                for(int i = 0; i < int(bits.size()-1); i++)
-                {
-                    //copy inverted bit to temp list
-                    tempbits.push_back(!bits[i]);
-
-                    //if bit is high, add to value
-                    if(tempbits.back()) tempval += pow(2,i);
-                }
-
-                //add one to temp value then invert sign
-                tempval = (tempval + 1) * (-1);
-            }
-
-            printw("%d", tempval);
-        }
-        else printw("%d\n", boolval);
+        int boolval = getDecFromBitfield(&bits);
+        mvprintw(0,0,"[d]ec value:%d", boolval );
 
         //change hex formatting based on word size
         switch(wordsize)
@@ -143,6 +111,9 @@ void BitTool::bitfield()
         mvprintw(22,1,"i");
         mvprintw(21,26,"w");
         attroff(COLOR_PAIR(1) | A_BOLD);
+
+        //draw protocol specific information
+        drawProtocolInfo();
 
 
         //debug
@@ -278,4 +249,61 @@ void BitTool::setBitFieldFromHex(std::vector<bool> *bits, int val)
 void BitTool::clearBitField(std::vector<bool> *bits)
 {
     for(int i = 0; i < int(bits->size()); i++) (*bits)[i] = false;
+}
+
+int BitTool::getDecFromBitfield(std::vector<bool> *bits)
+{
+    int boolval = 0;
+
+    for(int i = 0; i < int(bits->size()); i++)
+    {
+        if((*bits)[i]) boolval += pow(2, i);
+    }
+
+    if(isSigned)
+    {
+        int tempval = boolval;
+
+        if(bits->back())
+        {
+            //clear temp val for signed calc
+            tempval = 0;
+
+            //copy and invert all bits
+            std::vector<bool> tempbits;
+
+            for(int i = 0; i < int(bits->size()-1); i++)
+            {
+                //copy inverted bit to temp list
+                tempbits.push_back(!(*bits)[i]);
+
+                //if bit is high, add to value
+                if(tempbits.back()) tempval += pow(2,i);
+            }
+
+            //add one to temp value then invert sign
+            tempval = (tempval + 1) * (-1);
+        }
+
+        return tempval;
+    }
+    else return boolval;
+}
+
+void BitTool::drawProtocolInfo()
+{
+    if(protocolMode == P_NONE) return;
+    else if(protocolMode == P_STA)
+    {
+        mvprintw(5,50, "Serial Type A");
+        mvprintw(7,30, "16-bit FLIR angle: ");
+        if( int(bits.size()) != 16 ) printw(" N/A");
+        else
+        {
+            int val = getDecFromBitfield(&bits);
+            float angle = val * 360.f / 65536.f;
+            printw("%f", angle);
+        }
+
+    }
 }
