@@ -62,7 +62,7 @@ void BitTool::mainLoop()
         ch = getch();
 
         //process input
-        handleInput(ch);
+        if(handleInput(ch) == -1) quit = true;
 
     }
 
@@ -140,114 +140,118 @@ void BitTool::drawMenu()
 
 int BitTool::handleInput(int ch)
 {
-        if(ch == 27) return -1;
-        else if(ch == 258) selection++;
-        else if(ch == 259) selection--;
-        //if possible, shift to adjacent bit
-        //shift to the left
-        else if(ch == 260)
-        {
-            selection -= 16;
-        }
-        //shift to the right
-        else if(ch == 261)
-        {
-            selection += 16;
-        }
-        //toggle bit with space bar or enter key
-        else if(ch == 32 || ch == 10)
-        {
-            bits[selection] = !bits[selection];
-        }
-        //clear bit field 'c'
-        else if(ch == 99)
-        {
-            clearBitField(&bits);
-        }
-        //set decimal value 'd'
-        else if(ch == 100)
-        {
-            int newval = 0;
-            mvprintw(12,30,"Enter decimal value:");
-            scanw("%d", &newval);
 
-            if(newval > pow(2, bits.size()) )
-            {
-                mvprintw(14,30, "Value is too large!");
-                getch();
-            }
-            else setBitFieldFromDec(&bits, newval);
-        }
-        //set hex value 'h'
-        else if(ch == 104)
-        {
-            int newval = 0;
-            mvprintw(12,30,"Enter hex value:");
-            scanw("%x", &newval);
+    int wordsize = int(bits.size());
 
-            if(newval > pow(2, bits.size()) )
-            {
-                mvprintw(14,30, "Value is too large!");
-                getch();
-            }
-            else setBitFieldFromDec(&bits, newval);
+    if(ch == 27) return -1;
+    else if(ch == 258) selection++;
+    else if(ch == 259) selection--;
+    //if possible, shift to adjacent bit
+    //shift to the left
+    else if(ch == 260)
+    {
+        selection -= 16;
+    }
+    //shift to the right
+    else if(ch == 261)
+    {
+        selection += 16;
+    }
+    //toggle bit with space bar or enter key
+    else if(ch == 32 || ch == 10)
+    {
+        bits[selection] = !bits[selection];
+    }
+    //clear bit field 'c'
+    else if(ch == 99)
+    {
+        clearBitField(&bits);
+    }
+    //set decimal value 'd'
+    else if(ch == 100)
+    {
+        int newval = 0;
+        mvprintw(12,30,"Enter decimal value:");
+        scanw("%d", &newval);
 
-        }
-        //invert bits 'i'
-        else if(ch == 105)
+        if(newval > pow(2, bits.size()) )
         {
-            for(int i = 0; i < int(bits.size()); i++) bits[i] = !bits[i];
+            mvprintw(14,30, "Value is too large!");
+            getch();
+        }
+        else setBitFieldFromDec(&bits, newval);
+    }
+    //set hex value 'h'
+    else if(ch == 104)
+    {
+        int newval = 0;
+        mvprintw(12,30,"Enter hex value:");
+        scanw("%x", &newval);
 
-        }
-        //all bits set high 'a'
-        else if(ch == 97)
+        if(newval > pow(2, bits.size()) )
         {
-            for(int i = 0; i < int(bits.size()); i++) bits[i] = true;
+            mvprintw(14,30, "Value is too large!");
+            getch();
         }
-        //toggle signed/unsigned 's'
-        else if(ch == 115)
-        {
-            isSigned = !isSigned;
-        }
-        else if(ch == 119)
-        {
-            wordsize++;
-            if(wordsize == WS_TOTAL) wordsize = WS_NIBBLE;
+        else setBitFieldFromDec(&bits, newval);
 
-            switch(wordsize)
-            {
-            case WS_NIBBLE:
-                bits.resize(4);
-                break;
-            case WS_1BYTE:
-                bits.resize(8);
-                break;
-            case WS_2BYTE:
-                bits.resize(16);
-                break;
-            case WS_4BYTE:
-                bits.resize(32);
-            default:
-                break;
-            }
-        }
-        // 'p' is pressed, cycle protocol modes
-        else if(ch == 112)
+    }
+    //invert bits 'i'
+    else if(ch == 105)
+    {
+        for(int i = 0; i < int(bits.size()); i++) bits[i] = !bits[i];
+
+    }
+    //all bits set high 'a'
+    else if(ch == 97)
+    {
+        for(int i = 0; i < int(bits.size()); i++) bits[i] = true;
+    }
+    //toggle signed/unsigned 's'
+    else if(ch == 115)
+    {
+        isSigned = !isSigned;
+    }
+    else if(ch == 119)
+    {
+        switch(wordsize)
         {
-            protocolMode++;
-            if(protocolMode >= P_TOTAL) protocolMode = 0;
+        case WS_NIBBLE:
+            wordsize = WS_1BYTE;
+            bits.resize(WS_1BYTE);
+            break;
+        case WS_1BYTE:
+            wordsize = WS_2BYTE;
+            bits.resize(WS_2BYTE);
+            break;
+        case WS_2BYTE:
+            wordsize = WS_4BYTE;
+            bits.resize(WS_4BYTE);
+            break;
+        case WS_4BYTE:
+            wordsize = WS_NIBBLE;
+            bits.resize(WS_NIBBLE);
+        default:
+            break;
         }
+    }
+    // 'p' is pressed, cycle protocol modes
+    else if(ch == 112)
+    {
+        protocolMode++;
+        if(protocolMode >= P_TOTAL) protocolMode = 0;
+    }
 
 
-        //trim selection value
-        if(selection >= int(bits.size()))
-        {
-            selection -= 16;
-        }
-        else if(selection < 0)
-        {
-            selection += 16;
-        }
+    //trim selection value
+    if(selection >= int(bits.size()))
+    {
+        selection -= 16;
+    }
+    else if(selection < 0)
+    {
+        selection += 16;
+    }
 }
 
 void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
