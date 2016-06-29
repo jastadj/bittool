@@ -11,9 +11,14 @@ BitTool::BitTool()
     //init variables
     isSigned = false;
     protocolMode = P_STA;
+    selection = 0;
+    dataval = 0;
 
-    //mainLoop();
-    bitfield();
+    //init bitfield
+    for(int i = 0; i < 16; i++) bits.push_back(false);
+
+    //start main loop
+    mainLoop();
 }
 
 BitTool::~BitTool()
@@ -32,100 +37,110 @@ void BitTool::initCurses()
 
 }
 
-void BitTool::bitfield()
+void BitTool::mainLoop()
 {
     bool quit = false;
 
+    //store key input value
     int ch = 0;
-    int selection = 0;
-
-    for(int i = 0; i < 16; i++) bits.push_back(false);
-
-    //init word size
-    int wordsize = WS_2BYTE;
 
     while(!quit)
     {
         clear();
 
-        //calculate value of bools
+        //get data value
+        dataval = getDecFromBitfield(&bits);
 
-        int boolval = getDecFromBitfield(&bits);
-        mvprintw(0,0,"[d]ec value:%d", boolval );
-
-        //change hex formatting based on word size
-        mvprintw(1,0,"[h]ex value:0x");
-        switch(wordsize)
-        {
-        case WS_NIBBLE:
-            printw("%x\n\n", boolval);
-            break;
-        case WS_1BYTE:
-            printw("%02x\n\n", boolval);
-            break;
-        case WS_2BYTE:
-            printw("%04x\n\n", boolval);
-            break;
-        case WS_4BYTE:
-            printw("%08x\n\n", boolval);
-            break;
-        default:
-            break;
-        }
-
-        for(int i = 0; i < int(bits.size()); i++)
-        {
-            if(selection == i) attron(A_REVERSE);
-
-            mvprintw(3 + i - floor((i/16))*16, 12*floor((i/16)) , "BIT %02d : %d\n", i, int(bits[i]));
-
-            attroff(A_REVERSE);
-        }
-        mvprintw(20,0, "[c]lear bitfield");
-        mvprintw(20,25, "[s]igned:");
-        if(isSigned) printw("y");
-        else printw("n");
-        mvprintw(20, 50, "[p]rotocol mode:");
-        switch(protocolMode)
-        {
-        case P_NONE:
-            printw("None");
-            break;
-        case P_STA:
-            printw("Serial Type A");
-            break;
-        default:
-            printw("Error");
-            break;
-        }
-
-        mvprintw(21,0, "[a]ll bits high");
-        mvprintw(21,25,"[w]ord size:%d", int(bits.size()));
-
-        mvprintw(22,0, "[i]nvert bits");
-
-        //highlight ui components green
-        attron(COLOR_PAIR(1) | A_BOLD);
-        mvprintw(0,1,"d");
-        mvprintw(1,1,"h");
-        mvprintw(20,1, "c");
-        mvprintw(20,26,"s");
-        mvprintw(20,51,"p");
-        mvprintw(21,1,"a");
-        mvprintw(22,1,"i");
-        mvprintw(21,26,"w");
-        attroff(COLOR_PAIR(1) | A_BOLD);
-
-        //draw protocol specific information
+        //draw
+        drawMenu();
         drawProtocolInfo();
-
 
         //debug
         mvprintw(24,0,"test : %d\n", ch);
 
+        //get input
         ch = getch();
 
-        if(ch == 27) quit = true;
+        //process input
+        handleInput(ch);
+
+    }
+
+}
+
+void BitTool::drawMenu()
+{
+
+    mvprintw(0,0,"[d]ec value:%d", dataval );
+
+    //change hex formatting based on word size
+    mvprintw(1,0,"[h]ex value:0x");
+    int wordsize = int(bits.size());
+    switch(wordsize)
+    {
+    case WS_NIBBLE:
+        printw("%x\n\n", dataval);
+        break;
+    case WS_1BYTE:
+        printw("%02x\n\n", dataval);
+        break;
+    case WS_2BYTE:
+        printw("%04x\n\n", dataval);
+        break;
+    case WS_4BYTE:
+        printw("%08x\n\n", dataval);
+        break;
+    default:
+        break;
+    }
+
+    for(int i = 0; i < int(bits.size()); i++)
+    {
+        if(selection == i) attron(A_REVERSE);
+
+        mvprintw(3 + i - floor((i/16))*16, 12*floor((i/16)) , "BIT %02d : %d\n", i, int(bits[i]));
+
+        attroff(A_REVERSE);
+    }
+    mvprintw(20,0, "[c]lear bitfield");
+    mvprintw(20,25, "[s]igned:");
+    if(isSigned) printw("y");
+    else printw("n");
+    mvprintw(20, 50, "[p]rotocol mode:");
+    switch(protocolMode)
+    {
+    case P_NONE:
+        printw("None");
+        break;
+    case P_STA:
+        printw("Serial Type A");
+        break;
+    default:
+        printw("Error");
+        break;
+    }
+
+    mvprintw(21,0, "[a]ll bits high");
+    mvprintw(21,25,"[w]ord size:%d", int(bits.size()));
+
+    mvprintw(22,0, "[i]nvert bits");
+
+    //highlight ui components green
+    attron(COLOR_PAIR(1) | A_BOLD);
+    mvprintw(0,1,"d");
+    mvprintw(1,1,"h");
+    mvprintw(20,1, "c");
+    mvprintw(20,26,"s");
+    mvprintw(20,51,"p");
+    mvprintw(21,1,"a");
+    mvprintw(22,1,"i");
+    mvprintw(21,26,"w");
+    attroff(COLOR_PAIR(1) | A_BOLD);
+}
+
+int BitTool::handleInput(int ch)
+{
+        if(ch == 27) return -1;
         else if(ch == 258) selection++;
         else if(ch == 259) selection--;
         //if possible, shift to adjacent bit
@@ -233,9 +248,6 @@ void BitTool::bitfield()
         {
             selection += 16;
         }
-
-    }
-
 }
 
 void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)

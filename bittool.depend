@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1437064856 source:c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\src\main.cpp
+	<cstdlib>
+	"bittool.hpp"
+
+1467225315 c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\include\bittool.hpp
+	"curses.h"
+	<vector>
+
+1216152806 c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\include\curses.h
+	<stdarg.h>
+	<stddef.h>
+	<stdio.h>
+	<wchar.h>
+
+1439585435 source:c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\src\bittool.cpp
+	"bittool.hpp"
+	"math.h"
+	"stdint.h"
+
