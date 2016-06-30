@@ -1,7 +1,8 @@
 #include "bittool.hpp"
 #include "math.h"
 #include "stdint.h"
-
+#include <sstream>
+#include <iomanip>
 
 BitTool::BitTool()
 {
@@ -10,12 +11,15 @@ BitTool::BitTool()
 
     //init variables
     isSigned = false;
-    protocolMode = P_STA;
+    protocolMode = P_1553;
     selection = 0;
     dataval = 0;
+    dataval_unsigned = 0;
 
     //init bitfield
-    for(int i = 0; i < 16; i++) bits.push_back(false);
+    for(int i = 0; i < WS_4BYTE; i++) bits.push_back(false);
+
+    setBitFieldFromDec(&bits, 0x200f2b9d);
 
     //start main loop
     mainLoop();
@@ -48,8 +52,9 @@ void BitTool::mainLoop()
     {
         clear();
 
-        //get data value
+        //get data value for signed and unsigned
         dataval = getDecFromBitfield(&bits);
+        dataval_unsigned = dataval;
 
         //draw
         drawMenu();
@@ -72,6 +77,8 @@ void BitTool::drawMenu()
 {
 
     mvprintw(0,0,"[d]ec value:%d", dataval );
+    if(isSigned) mvprintw(0, 12,"%d", dataval);
+    else mvprintw(0,12,"%u", dataval_unsigned);
 
     //change hex formatting based on word size
     mvprintw(1,0,"[h]ex value:0x");
@@ -102,11 +109,11 @@ void BitTool::drawMenu()
 
         attroff(A_REVERSE);
     }
-    mvprintw(20,0, "[c]lear bitfield");
-    mvprintw(20,25, "[s]igned:");
+    mvprintw(21,0, "[c]lear bitfield");
+    mvprintw(21,25, "[s]igned:");
     if(isSigned) printw("y");
     else printw("n");
-    mvprintw(20, 50, "[p]rotocol mode:");
+    mvprintw(21, 50, "[p]rotocol mode:");
     switch(protocolMode)
     {
     case P_NONE:
@@ -115,26 +122,29 @@ void BitTool::drawMenu()
     case P_STA:
         printw("Serial Type A");
         break;
+    case P_1553:
+        printw("1553");
+        break;
     default:
         printw("Error");
         break;
     }
 
-    mvprintw(21,0, "[a]ll bits high");
-    mvprintw(21,25,"[w]ord size:%d", int(bits.size()));
+    mvprintw(22,0, "[a]ll bits high");
+    mvprintw(22,25,"[w]ord size:%d", int(bits.size()));
 
-    mvprintw(22,0, "[i]nvert bits");
+    mvprintw(23,0, "[i]nvert bits");
 
     //highlight ui components green
     attron(COLOR_PAIR(1) | A_BOLD);
     mvprintw(0,1,"d");
     mvprintw(1,1,"h");
-    mvprintw(20,1, "c");
-    mvprintw(20,26,"s");
-    mvprintw(20,51,"p");
-    mvprintw(21,1,"a");
-    mvprintw(22,1,"i");
-    mvprintw(21,26,"w");
+    mvprintw(21,1, "c");
+    mvprintw(21,26,"s");
+    mvprintw(21,51,"p");
+    mvprintw(22,1,"a");
+    mvprintw(23,1,"i");
+    mvprintw(22,26,"w");
     attroff(COLOR_PAIR(1) | A_BOLD);
 }
 
@@ -283,11 +293,6 @@ void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
     }
 }
 
-void BitTool::setBitFieldFromHex(std::vector<bool> *bits, int val)
-{
-    if(bits == NULL) return;
-}
-
 void BitTool::clearBitField(std::vector<bool> *bits)
 {
     for(int i = 0; i < int(bits->size()); i++) (*bits)[i] = false;
@@ -334,6 +339,8 @@ int BitTool::getDecFromBitfield(std::vector<bool> *bits)
 
 void BitTool::drawProtocolInfo()
 {
+    const static double resolution_1553_geo = pow(2, -31);
+
     if(protocolMode == P_NONE) return;
     else if(protocolMode == P_STA)
     {
@@ -348,4 +355,28 @@ void BitTool::drawProtocolInfo()
         }
 
     }
+    else if(protocolMode == P_1553)
+    {
+        mvprintw(5,55, "1553");
+        if( int(bits.size()) == WS_4BYTE)
+        {
+            mvprintw(7,55, "Lat/Lon: %s", degToGeoString(dataval*resolution_1553_geo*180).c_str());
+        }
+
+    }
+}
+
+std::string BitTool::degToGeoString(float deg)
+{
+    std::stringstream geoss;
+    geoss << floor(deg) << char(248) << " ";
+
+    float gclock = (fabs(deg) - fabs(floor(deg)))*60;
+    int hours = floor(gclock);
+    float minutes = (fabs(gclock) - fabs(floor(gclock))) *60;
+
+    geoss << hours << "' " << std::fixed << std::setprecision(2) << minutes << "\"";
+
+
+    return geoss.str();
 }

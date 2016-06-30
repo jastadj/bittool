@@ -3,6 +3,7 @@
 
 #include "curses.h"
 #include <vector>
+#include <string>
 
 enum _WORDSIZE {
                 WS_NIBBLE = 4,
@@ -11,7 +12,7 @@ enum _WORDSIZE {
                 WS_4BYTE = 32
                 };
 
-enum _PROTOCOL {P_NONE, P_STA, P_TOTAL};
+enum _PROTOCOL {P_NONE, P_STA, P_1553, P_TOTAL};
 
 class BitTool
 {
@@ -32,6 +33,7 @@ private:
 
     //bit data
     long int dataval;
+    long unsigned dataval_unsigned;
     std::vector<bool> bits;
     bool isSigned;
 
@@ -40,10 +42,11 @@ private:
 
     //bitfield operations
     void setBitFieldFromDec(std::vector<bool> *bits, int val);
-    void setBitFieldFromHex(std::vector<bool> *bits, int val);
     void clearBitField(std::vector<bool> *bits);
     int getDecFromBitfield(std::vector<bool> *bits);
 
+    //conversion
+    std::string degToGeoString(float deg);
 
 public:
     BitTool();
