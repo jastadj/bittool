@@ -344,11 +344,10 @@ void BitTool::drawProtocolInfo()
     if(protocolMode == P_NONE) return;
     else if(protocolMode == P_STA)
     {
-        mvprintw(5,50, "Serial Type A");
-        mvprintw(7,30, "16-bit FLIR angle: ");
-        if( int(bits.size()) != 16 ) printw(" N/A");
-        else
+        mvprintw(5,55, "Serial Type A");
+        if( int(bits.size()) == WS_2BYTE)
         {
+            mvprintw(7,55, "16b angle: ");
             int val = getDecFromBitfield(&bits);
             float angle = val * 360.f / 65536.f;
             printw("%f", angle);
