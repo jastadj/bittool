@@ -3,7 +3,7 @@
 	<cstdlib>
 	"bittool.hpp"
 
-1467305132 c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\include\bittool.hpp
+1467309668 c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\include\bittool.hpp
 	"curses.h"
 	<vector>
 	<string>
@@ -14,7 +14,7 @@
 	<stdio.h>
 	<wchar.h>
 
-1467305997 source:c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\src\bittool.cpp
+1467309968 source:c:\documents and settings\jjastad\my documents\codeblocks\projects\bittool\src\bittool.cpp
 	"bittool.hpp"
 	"math.h"
 	"stdint.h"

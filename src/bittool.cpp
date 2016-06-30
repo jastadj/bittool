@@ -13,13 +13,14 @@ BitTool::BitTool()
     isSigned = false;
     protocolMode = P_1553;
     selection = 0;
+    selection_start = -1;
     dataval = 0;
     dataval_unsigned = 0;
 
     //init bitfield
     for(int i = 0; i < WS_4BYTE; i++) bits.push_back(false);
 
-    setBitFieldFromDec(&bits, 0x200f2b9d);
+    setBitFieldFromDec(&bits, 0xca8efc51);
 
     //start main loop
     mainLoop();
@@ -154,18 +155,38 @@ int BitTool::handleInput(int ch)
     int wordsize = int(bits.size());
 
     if(ch == 27) return -1;
-    else if(ch == 258) selection++;
-    else if(ch == 259) selection--;
+    else if(ch == 258)
+    {
+        selection_start = -1;
+        selection++;
+    }
+    else if(ch == 259)
+    {
+        selection_start = -1;
+        selection--;
+    }
     //if possible, shift to adjacent bit
     //shift to the left
     else if(ch == 260)
     {
+        selection_start = -1;
         selection -= 16;
     }
     //shift to the right
     else if(ch == 261)
     {
+        selection_start = -1;
         selection += 16;
+    }
+    else if(ch == 480)
+    {
+        if(selection_start == -1) selection_start = selection;
+        selection--;
+    }
+    else if(ch == 481)
+    {
+        if(selection_start == -1) selection_start = selection;
+        selection ++;
     }
     //toggle bit with space bar or enter key
     else if(ch == 32 || ch == 10)
@@ -224,6 +245,7 @@ int BitTool::handleInput(int ch)
     }
     else if(ch == 119)
     {
+        selection_start = -1;
         switch(wordsize)
         {
         case WS_NIBBLE:
@@ -359,7 +381,26 @@ void BitTool::drawProtocolInfo()
         mvprintw(5,55, "1553");
         if( int(bits.size()) == WS_4BYTE)
         {
+            //geo coord
             mvprintw(7,55, "Lat/Lon: %s", degToGeoString(dataval*resolution_1553_geo*180).c_str());
+
+            //time
+            long int seconds = (dataval / 1000);
+            long int minutes = seconds/60;
+            long int hours = minutes/60;
+            std::stringstream mytime;
+            mytime << hours << ":";
+            minutes = minutes - (hours*60);
+            if( minutes < 10) mytime << "0";
+            mytime << minutes << ":";
+            seconds = seconds - (minutes*60) - (hours*60*60);
+            if(seconds < 10) mytime << "0";
+            mytime << seconds;
+            mvprintw(8,55, "Time  %s", mytime.str().c_str());
+        }
+        else if(int(bits.size()) == WS_2BYTE)
+        {
+
         }
 
     }

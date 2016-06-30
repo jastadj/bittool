@@ -29,6 +29,7 @@ private:
 
     //handle input
     int selection;
+    int selection_start;
     int handleInput(int ch);
 
     //bit data
