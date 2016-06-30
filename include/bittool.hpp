@@ -48,6 +48,7 @@ private:
 
     //conversion
     std::string degToGeoString(float deg);
+    float getAngle16(int val);
 
 public:
     BitTool();

@@ -369,10 +369,7 @@ void BitTool::drawProtocolInfo()
         mvprintw(5,55, "Serial Type A");
         if( int(bits.size()) == WS_2BYTE)
         {
-            mvprintw(7,55, "16b angle: ");
-            int val = getDecFromBitfield(&bits);
-            float angle = val * 360.f / 65536.f;
-            printw("%f", angle);
+            mvprintw(7,55, "16b angle: %f", getAngle16(dataval));
         }
 
     }
@@ -400,7 +397,7 @@ void BitTool::drawProtocolInfo()
         }
         else if(int(bits.size()) == WS_2BYTE)
         {
-
+            mvprintw(7,55, "16b angle: %f", getAngle16(dataval));
         }
 
     }
@@ -419,4 +416,9 @@ std::string BitTool::degToGeoString(float deg)
 
 
     return geoss.str();
+}
+
+float BitTool::getAngle16(int val)
+{
+    return float( val*360.f / 65536.f);
 }
