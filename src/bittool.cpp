@@ -397,7 +397,8 @@ void BitTool::drawProtocolInfo()
         }
         else if(int(bits.size()) == WS_2BYTE)
         {
-            mvprintw(7,55, "16b angle: %f", getAngle16(dataval));
+            mvprintw(7,54, "u16b angle: %f", getAngle16(dataval));
+            mvprintw(8,55, "16b angle: %f", getAngle16(dataval, true));
         }
 
     }
@@ -418,7 +419,14 @@ std::string BitTool::degToGeoString(float deg)
     return geoss.str();
 }
 
-float BitTool::getAngle16(int val)
+float BitTool::getAngle16(int val, bool tsigned)
 {
-    return float( val*360.f / 65536.f);
+    //get 360deg value
+    float tval( val*360.f / 0xffff);
+
+    //if doing signed conversion
+    if(tsigned && (val & 0x8000)) tval -= 360.f;
+
+    //else return
+    return tval;
 }
