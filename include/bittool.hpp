@@ -4,6 +4,7 @@
 #include "curses.h"
 #include <vector>
 #include <string>
+#include <stdint.h>
 
 enum _WORDSIZE {
                 WS_NIBBLE = 4,
@@ -33,8 +34,8 @@ private:
     int handleInput(int ch);
 
     //bit data
-    long int dataval;
-    long unsigned dataval_unsigned;
+    int32_t dataval;
+    //long unsigned dataval_unsigned;
     std::vector<bool> bits;
     bool isSigned;
 
@@ -42,13 +43,14 @@ private:
     int protocolMode;
 
     //bitfield operations
-    void setBitFieldFromDec(std::vector<bool> *bits, int val);
+    void setBitFieldFromDec(std::vector<bool> *bits, uint32_t val);
     void clearBitField(std::vector<bool> *bits);
-    int getDecFromBitfield(std::vector<bool> *bits);
+    uint32_t getDecFromBitfield(std::vector<bool> *bits);
 
     //conversion
     std::string degToGeoString(float deg);
     float getAngle16(int val);
+    float getAngle32(int val);
 
 public:
     BitTool();

@@ -11,16 +11,17 @@ BitTool::BitTool()
 
     //init variables
     isSigned = false;
-    protocolMode = P_1553;
+    protocolMode = P_STA;
     selection = 0;
     selection_start = -1;
     dataval = 0;
-    dataval_unsigned = 0;
+    //dataval_unsigned = 0;
 
     //init bitfield
-    for(int i = 0; i < WS_4BYTE; i++) bits.push_back(false);
+    for(int i = 0; i < WS_2BYTE; i++) bits.push_back(false);
 
-    setBitFieldFromDec(&bits, 0xca8efc51);
+    //testing
+    //setBitFieldFromDec(&bits, 0xca8efc51);
 
     //start main loop
     mainLoop();
@@ -55,7 +56,7 @@ void BitTool::mainLoop()
 
         //get data value for signed and unsigned
         dataval = getDecFromBitfield(&bits);
-        dataval_unsigned = dataval;
+        //dataval_unsigned = dataval;
 
         //draw
         drawMenu();
@@ -77,30 +78,60 @@ void BitTool::mainLoop()
 void BitTool::drawMenu()
 {
 
-    mvprintw(0,0,"[d]ec value:%d", dataval );
-    if(isSigned) mvprintw(0, 12,"%d", dataval);
-    else mvprintw(0,12,"%u", dataval_unsigned);
-
-    //change hex formatting based on word size
+    mvprintw(0,0,"[d]ec value:");
     mvprintw(1,0,"[h]ex value:0x");
     int wordsize = int(bits.size());
-    switch(wordsize)
+
+    // if data is signed
+    if(isSigned)
     {
-    case WS_NIBBLE:
-        printw("%x\n\n", dataval);
-        break;
-    case WS_1BYTE:
-        printw("%02x\n\n", dataval);
-        break;
-    case WS_2BYTE:
-        printw("%04x\n\n", dataval);
-        break;
-    case WS_4BYTE:
-        printw("%08x\n\n", dataval);
-        break;
-    default:
-        break;
+        mvprintw(0, 12,"%zd", dataval);
+        move(1, 14);
+        switch(wordsize)
+        {
+        case WS_NIBBLE:
+            printw("%x\n\n", dataval);
+            break;
+        case WS_1BYTE:
+            printw("%02x\n\n", dataval);
+            break;
+        case WS_2BYTE:
+            printw("%04x\n\n", int16_t(dataval) );
+            break;
+        case WS_4BYTE:
+            printw("%08x\n\n", dataval);
+            break;
+        default:
+            break;
+        }
     }
+    //else data is unsigned
+    else
+    {
+        mvprintw(0,12,"%zu", uint32_t(dataval) );
+        move(1, 14);
+        switch(wordsize)
+        {
+        case WS_NIBBLE:
+            printw("%x\n\n", uint8_t(dataval) );
+            break;
+        case WS_1BYTE:
+            printw("%02x\n\n", uint8_t(dataval) );
+            break;
+        case WS_2BYTE:
+            printw("%04x\n\n", uint16_t(dataval) );
+            break;
+        case WS_4BYTE:
+            printw("%08x\n\n", uint32_t(dataval) );
+            break;
+        default:
+            break;
+        }
+    }
+
+    //change hex formatting based on word size
+
+
 
     for(int i = 0; i < int(bits.size()); i++)
     {
@@ -284,12 +315,14 @@ int BitTool::handleInput(int ch)
     {
         selection += 16;
     }
+
+    return 0;
 }
 
-void BitTool::setBitFieldFromDec(std::vector<bool> *bits, int val)
+void BitTool::setBitFieldFromDec(std::vector<bool> *bits, uint32_t val)
 {
     std::vector<bool> templist;
-    int tval = val;
+    uint32_t tval = val;
 
     //if bit field list is null
     if(bits == NULL) return;
@@ -320,43 +353,16 @@ void BitTool::clearBitField(std::vector<bool> *bits)
     for(int i = 0; i < int(bits->size()); i++) (*bits)[i] = false;
 }
 
-int BitTool::getDecFromBitfield(std::vector<bool> *bits)
+uint32_t BitTool::getDecFromBitfield(std::vector<bool> *bits)
 {
-    int boolval = 0;
+    uint32_t boolval = 0;
 
     for(int i = 0; i < int(bits->size()); i++)
     {
         if((*bits)[i]) boolval += pow(2, i);
     }
 
-    if(isSigned)
-    {
-        int tempval = boolval;
-
-        if(bits->back())
-        {
-            //clear temp val for signed calc
-            tempval = 0;
-
-            //copy and invert all bits
-            std::vector<bool> tempbits;
-
-            for(int i = 0; i < int(bits->size()-1); i++)
-            {
-                //copy inverted bit to temp list
-                tempbits.push_back(!(*bits)[i]);
-
-                //if bit is high, add to value
-                if(tempbits.back()) tempval += pow(2,i);
-            }
-
-            //add one to temp value then invert sign
-            tempval = (tempval + 1) * (-1);
-        }
-
-        return tempval;
-    }
-    else return boolval;
+    return boolval;
 }
 
 void BitTool::drawProtocolInfo()
@@ -370,6 +376,10 @@ void BitTool::drawProtocolInfo()
         if( int(bits.size()) == WS_2BYTE)
         {
             mvprintw(7,55, "16b angle: %f", getAngle16(dataval));
+        }
+        else if( int(bits.size()) == WS_4BYTE)
+        {
+            mvprintw(7,55, "32b angle: %f", getAngle32(dataval));
         }
 
     }
@@ -423,4 +433,9 @@ float BitTool::getAngle16(int val)
 {
     //else return
     return float( val*360.f / 0xffff);
+}
+
+float BitTool::getAngle32(int val)
+{
+    return float( val*360.f / 0xffffffff);
 }

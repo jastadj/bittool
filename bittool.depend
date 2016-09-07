@@ -21,3 +21,26 @@
 	<sstream>
 	<iomanip>
 
+1473264720 source:c:\users\jjastad\documents\codeblocks\projects\bittool\src\bittool.cpp
+	"bittool.hpp"
+	"math.h"
+	"stdint.h"
+	<sstream>
+	<iomanip>
+
+1473264720 c:\users\jjastad\documents\codeblocks\projects\bittool\include\bittool.hpp
+	"curses.h"
+	<vector>
+	<string>
+	<stdint.h>
+
+1472748976 c:\users\jjastad\documents\codeblocks\projects\bittool\include\curses.h
+	<stdarg.h>
+	<stddef.h>
+	<stdio.h>
+	<wchar.h>
+
+1472748976 source:c:\users\jjastad\documents\codeblocks\projects\bittool\src\main.cpp
+	<cstdlib>
+	"bittool.hpp"
+
