@@ -85,7 +85,10 @@ void BitTool::drawMenu()
     // if data is signed
     if(isSigned)
     {
-        mvprintw(0, 12,"%zd", dataval);
+        if(wordsize == WS_1BYTE) mvprintw(0, 12,"%zd", int8_t(dataval) );
+        else if(wordsize == WS_2BYTE) mvprintw(0, 12,"%zd", int16_t(dataval) );
+        else if(wordsize == WS_4BYTE) mvprintw(0, 12,"%zd", int32_t(dataval) );
+        else mvprintw(0, 12,"%zd", int8_t(dataval) );
         move(1, 14);
         switch(wordsize)
         {
