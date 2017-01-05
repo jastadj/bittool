@@ -93,16 +93,16 @@ void BitTool::drawMenu()
         switch(wordsize)
         {
         case WS_NIBBLE:
-            printw("%x\n\n", dataval);
+            printw("%x\n\n", uint8_t(dataval)&0x00ff );
             break;
         case WS_1BYTE:
-            printw("%02x\n\n", dataval);
+            printw("%02x\n\n", uint8_t(dataval) );
             break;
         case WS_2BYTE:
-            printw("%04x\n\n", int16_t(dataval) );
+            printw("%04x\n\n", uint16_t(dataval) );
             break;
         case WS_4BYTE:
-            printw("%08x\n\n", dataval);
+            printw("%08x\n\n", uint32_t(dataval) );
             break;
         default:
             break;
