@@ -280,6 +280,7 @@ int BitTool::handleInput(int ch)
     else if(ch == 119)
     {
         selection_start = -1;
+        selection = 0;
         switch(wordsize)
         {
         case WS_NIBBLE:
